@@ -3,27 +3,27 @@ const provincRrouter = express.Router();
 const mongoose = require('mongoose');
 const Province = require('../models/province');
 
-const normalizeText = (text) => {
-    return text.normalize('NFD')
-               .replace(/[\u0300-\u036f]/g, '')
-               .replace(/[-.]/g, ' ')
-               .replace(/\s+/g, ' ')
-               .toLowerCase();
-};
+// const normalizeText = (text) => {
+//     return text.normalize('NFD')
+//                .replace(/[\u0300-\u036f]/g, '')
+//                .replace(/[-.]/g, ' ')
+//                .replace(/\s+/g, ' ')
+//                .toLowerCase();
+// };
 
 provincRrouter.get('/search', async (req, res) => {
   const query = req.query.q || '';
-  
-  const normalizedQuery = normalizeText(query);
-  console.log(normalizedQuery);
+//   console.log(query);
+//   const normalizedQuery = normalizeText(query);
+//   console.log(normalizedQuery);
   const pipeline = [
     {
       $search: {
         index: 'default',
         text: {
-          query: normalizedQuery,
+          query: query,
           path: {
-            wildcard: '*'
+            wildcard: "*",
           },
           fuzzy: {
             maxEdits: 2
