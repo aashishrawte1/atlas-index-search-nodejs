@@ -11,41 +11,26 @@ nameRouter.get('/search', async (req, res) => {
     return res.status(400).json({ error: 'Query parameter "q" is required' });
   }
   console.log(userQuery);
-  const transformedQuery = transformUserQuery(userQuery);
-  // const words = userQuery.split(' ');
+  const words = userQuery.split(' ');
 
-  // const mustQueries = words.map(word => ({
-  //   text: {
-  //     query: word,
-  //     path: {
-  //       wildcard: '*',
-  //       fuzzy: {
-  //         maxEdits: 2
-  //       }
-  //     }
-  //   }
-  // }));
+  const mustQueries = words.map(word => ({
+    text: {
+      query: word,
+      path: "name",
+      fuzzy: {}
+    }
+  }));
     
-  const pipeline = [
-    {
-      $search: {
-        index: 'sampleSearch',
-        compound: {
-          must: [
-            {
-              text: {
-                query: transformedQuery,
-                path: 'name',
-                fuzzy: {
-                  maxEdits: 2  // Adjust maxEdits as per your tolerance for typos or variations
-                }
-              }
-            }
-          ]
+    const pipeline = [
+      {
+        $search: {
+          index: 'sampleSearch',
+          compound: {
+            must: mustQueries,
+          }
         }
       }
-    }
-  ];
+    ];
   
     try {
       const results = await Sample.aggregate(pipeline).exec();
@@ -54,10 +39,5 @@ nameRouter.get('/search', async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   });
-
-  function transformUserQuery(query) {
-    return query.replace(/[._-]/g, ' ');
-  }
-  
   
   module.exports = nameRouter;
